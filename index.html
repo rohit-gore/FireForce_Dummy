@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab Status Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .dashboard {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      text-align: center;
+    }
+
+    .dashboard h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .info {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .value {
+      color: #0077cc;
+    }
+
+    .status-normal {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-alert {
+      color: red;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard">
+    <h2>Lab Status</h2>
+    <div class="info"><span class="label">Room:</span> <span id="room" class="value"></span></div>
+    <div class="info"><span class="label">Temperature:</span> <span id="temperature" class="value"></span></div>
+    <div class="info"><span class="label">Smoke Level:</span> <span id="smokeLevel" class="value"></span></div>
+    <div class="info"><span class="label">Humidity:</span> <span id="humidity" class="value"></span></div>
+    <div class="info"><span class="label">Status:</span> <span id="status" class="value"></span></div>
+    <div class="info"><span class="label">Last Updated:</span> <span id="lastUpdated" class="value"></span></div>
+    <button onclick="loadData()">Refresh Data</button>
+  </div>
+
+  <script>
+    const AWS_LINK = "https://your-aws-endpoint-url.com/data.json"; // Replace this with your actual AWS Cloud link
+
+    async function loadData() {
+      try {
+        const response = await fetch(AWS_LINK);
+        const data = await response.json();
+
+        document.getElementById("room").textContent = data.Room;
+        document.getElementById("temperature").textContent = data.Temperature;
+        document.getElementById("smokeLevel").textContent = data.SmokeLevel;
+        document.getElementById("humidity").textContent = data.Humidity;
+        document.getElementById("status").textContent = data.Status;
+        document.getElementById("lastUpdated").textContent = data.LastUpdated;
+
+        document.getElementById("status").className =
+          data.Status === "Normal" ? "value status-normal" : "value status-alert";
+
+      } catch (error) {
+        alert("Failed to load data. Check AWS link or network.");
+        console.error(error);
+      }
+    }
+
+    // Load on page load
+    window.onload = loadData;
+  </script>
+
+</body>
+</html>
