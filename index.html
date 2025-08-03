@@ -73,38 +73,42 @@
 
   <div class="dashboard">
     <h2>Lab Status</h2>
-    <div class="info"><span class="label">Room:</span> <span id="room" class="value"></span></div>
-    <div class="info"><span class="label">Temperature:</span> <span id="temperature" class="value"></span></div>
-    <div class="info"><span class="label">Smoke Level:</span> <span id="smokeLevel" class="value"></span></div>
-    <div class="info"><span class="label">Humidity:</span> <span id="humidity" class="value"></span></div>
-    <div class="info"><span class="label">Status:</span> <span id="status" class="value"></span></div>
-    <div class="info"><span class="label">Last Updated:</span> <span id="lastUpdated" class="value"></span></div>
-    <button onclick="loadData()">Refresh Data</button>
+    <div class="info"><span class="label">Room:</span> <span id="room" class="value">--</span></div>
+    <div class="info"><span class="label">Temperature:</span> <span id="temperature" class="value">--</span></div>
+    <div class="info"><span class="label">Smoke Level:</span> <span id="smokeLevel" class="value">--</span></div>
+    <div class="info"><span class="label">Humidity:</span> <span id="humidity" class="value">--</span></div>
+    <div class="info"><span class="label">Status:</span> <span id="status" class="value">--</span></div>
+    <div class="info"><span class="label">Last Updated:</span> <span id="lastUpdated" class="value">--</span></div>
+    <button onclick="loadData()">Refresh Now</button>
   </div>
 
   <script>
-    const AWS_LINK = "https://v5uj69hq0a.execute-api.eu-north-1.amazonaws.com/v1/GetFireForceData"; // Replace this with your actual AWS Cloud link
+    const AWS_LINK = "https://v5uj69hq0a.execute-api.eu-north-1.amazonaws.com/v1/GetFireForceData"; // Your Lambda API URL
 
     async function loadData() {
       try {
         const response = await fetch(AWS_LINK);
         const data = await response.json();
 
-        document.getElementById("room").textContent = data.Room;
-        document.getElementById("temperature").textContent = data.Temperature;
-        document.getElementById("smokeLevel").textContent = data.SmokeLevel;
-        document.getElementById("humidity").textContent = data.Humidity;
+        document.getElementById("room").textContent = data.Room || data.Lab || "N/A";
+        document.getElementById("temperature").textContent = data.Temperature + " °C";
+        document.getElementById("smokeLevel").textContent = data.Gas || data.SmokeLevel;
+        document.getElementById("humidity").textContent = data.Humidity + " %";
         document.getElementById("status").textContent = data.Status;
-        document.getElementById("lastUpdated").textContent = data.LastUpdated;
+        document.getElementById("lastUpdated").textContent = new Date(data.LastUpdated).toLocaleString();
 
+        // Update status color
         document.getElementById("status").className =
           data.Status === "Normal" ? "value status-normal" : "value status-alert";
 
       } catch (error) {
+        console.error("Failed to load data:", error);
         alert("Failed to load data. Check AWS link or network.");
-        console.error(error);
       }
     }
+
+    // Load every 5 seconds
+    setInterval(loadData, 5000);
 
     // Load on page load
     window.onload = loadData;
